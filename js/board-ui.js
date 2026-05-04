@@ -117,9 +117,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             <i class="fas fa-thumbs-down"></i> 비추천
                         </button>
                     </div>
-                    <div class="delete-area" style="display: flex; gap: 10px; align-items: center;">
-                        <input type="password" id="delete-pw-${id}" placeholder="삭제 비밀번호" class="password-input" style="padding: 8px; font-size: 0.9rem;">
-                        <button class="secondary-btn" style="color: #999; border: 1px solid #ddd; padding: 7px 15px; background: white;" onclick="deleteContent('post', '${id}')">삭제</button>
+                    <div class="delete-area" id="delete-area-${id}">
+                        <button class="secondary-btn" style="color: #999; border: 1px solid #ddd; padding: 7px 15px; background: white;" onclick="toggleDeleteArea('${id}')">삭제</button>
+                    </div>
+                    <div class="delete-confirm-area hidden" id="delete-confirm-${id}" style="display: flex; gap: 5px; align-items: center;">
+                        <input type="password" id="delete-pw-${id}" placeholder="비밀번호" class="password-input" style="padding: 8px; font-size: 0.9rem; width: 100px;">
+                        <button class="primary-btn" style="padding: 7px 12px; background: #e74c3c;" onclick="deleteContent('post', '${id}')">확인</button>
+                        <button class="secondary-btn" style="padding: 7px 12px;" onclick="toggleDeleteArea('${id}')">취소</button>
                     </div>
                 </div>
             `;
@@ -175,6 +179,14 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             alert('투표 실패: ' + error.message);
         }
+    };
+
+    // Toggle Delete Password Area
+    window.toggleDeleteArea = (id) => {
+        const area = document.getElementById(`delete-area-${id}`);
+        const confirmArea = document.getElementById(`delete-confirm-${id}`);
+        area.classList.toggle('hidden');
+        confirmArea.classList.toggle('hidden');
     };
 
     // Deleting
@@ -239,9 +251,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="recommend-count ${c.score > 0 ? '' : c.score < 0 ? 'negative' : 'zero'}" style="font-size: 0.7rem; margin-left: 10px;">추천 ${c.score || 0}</span>
                             <span style="font-weight: 400; color: #999; font-size: 0.8rem; margin-left: 10px;">${c.createdAt ? c.createdAt.toDate().toLocaleString() : ''}</span>
                         </div>
-                        <div class="delete-area">
-                            <input type="password" id="delete-pw-${c.id}" placeholder="PW" class="password-input" style="width: 50px !important; padding: 3px;">
-                            <button onclick="deleteContent('comment', '${postId}', '${c.id}')" style="background: none; border: none; color: #ccc; font-size: 0.75rem; cursor: pointer;">삭제</button>
+                        <div class="delete-area" id="delete-area-${c.id}">
+                            <button onclick="toggleDeleteArea('${c.id}')" style="background: none; border: none; color: #ccc; font-size: 0.75rem; cursor: pointer;">삭제</button>
+                        </div>
+                        <div class="delete-confirm-area hidden" id="delete-confirm-${c.id}" style="display: flex; gap: 5px; align-items: center;">
+                            <input type="password" id="delete-pw-${c.id}" placeholder="PW" class="password-input" style="width: 60px !important; padding: 3px;">
+                            <button onclick="deleteContent('comment', '${postId}', '${c.id}')" style="background: none; border: 1px solid #e74c3c; color: #e74c3c; font-size: 0.75rem; padding: 2px 5px; border-radius: 3px;">확인</button>
                         </div>
                     </div>
                     <div class="comment-text" style="margin: 8px 0; color: #555;">${c.content}</div>
