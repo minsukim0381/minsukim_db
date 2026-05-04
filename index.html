@@ -21,7 +21,7 @@
                 <li><a href="#" class="nav-item">교수소개</a></li>
                 <li><a href="#" class="nav-item">학과앨범</a></li>
                 <li><a href="#" class="nav-item">학과공지</a></li>
-                <li><a href="#" id="board-nav" class="nav-item">자유게시판</a></li>
+                <li><a href="board.html" class="nav-item">자유게시판</a></li>
             </ul>
         </div>
     </nav>
@@ -142,79 +142,9 @@
                 </div>
             </div>
         </section>
-
-        <!-- Board Section -->
-        <section id="board-section" class="page-section hidden">
-            <div class="board-container">
-                <div class="board-header">
-                    <h2>자유게시판</h2>
-                    <button id="write-btn" class="primary-btn">글쓰기</button>
-                </div>
-                <div id="post-list" class="post-list">
-                    <!-- Posts will be loaded here -->
-                    <div class="loading">게시글을 불러오는 중...</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Post Write/Edit Section -->
-        <section id="write-section" class="page-section hidden">
-            <div class="form-container">
-                <h2 id="form-title">게시글 작성</h2>
-                <form id="post-form">
-                    <input type="hidden" id="post-id">
-                    <div class="form-group">
-                        <label for="title">제목</label>
-                        <input type="text" id="title" required placeholder="제목을 입력하세요">
-                    </div>
-                    <div class="form-group">
-                        <label for="author">작성자</label>
-                        <input type="text" id="author" required placeholder="이름">
-                    </div>
-                    <div class="form-group">
-                        <label for="content">내용</label>
-                        <textarea id="content" rows="10" required placeholder="내용을 입력하세요"></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="secondary-btn" id="cancel-btn">취소</button>
-                        <button type="submit" class="primary-btn">저장하기</button>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <!-- Post View Section -->
-        <section id="view-section" class="page-section hidden">
-            <div class="view-container">
-                <div id="post-detail">
-                    <!-- Post detail will be loaded here -->
-                </div>
-                <hr>
-                <div class="comment-section">
-                    <h3>댓글</h3>
-                    <div id="comment-list">
-                        <!-- Comments will be loaded here -->
-                    </div>
-                    <form id="comment-form">
-                        <div class="comment-input-group">
-                            <input type="text" id="comment-author" placeholder="이름" required>
-                            <textarea id="comment-content" placeholder="댓글을 입력하세요" required></textarea>
-                            <button type="submit" class="primary-btn">댓글 등록</button>
-                        </div>
-                    </form>
-                </div>
-                <div class="view-actions">
-                    <button class="secondary-btn" id="back-to-list">목록으로</button>
-                </div>
-            </div>
-        </section>
     </main>
 
     <!-- Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="js/firebase-config.js"></script>
-    <script src="js/board.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

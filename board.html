@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자유게시판 - 로봇소프트웨어과</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .score-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #f0f4f8;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            font-family: 'Inter', sans-serif;
+        }
+        .vote-btns {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .vote-btn {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+        .vote-btn:hover {
+            background: #f0f0f0;
+        }
+        .vote-btn.up:hover { color: #27ae60; border-color: #27ae60; }
+        .vote-btn.down:hover { color: #e74c3c; border-color: #e74c3c; }
+        
+        .password-input {
+            width: 120px !important;
+            padding: 5px !important;
+            font-size: 0.8rem !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo"><a href="index.html" style="color: white; text-decoration: none;">로봇소프트웨어과</a></div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item">홈으로</a></li>
+                <li><a href="board.html" class="nav-item active">자유게시판</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="page-section">
+        <!-- Board List -->
+        <section id="board-list-view" class="board-container">
+            <div class="board-header">
+                <h2>자유게시판</h2>
+                <button id="write-btn" class="primary-btn">글쓰기</button>
+            </div>
+            <div id="post-list" class="post-list">
+                <div class="loading">게시글을 불러오는 중...</div>
+            </div>
+        </section>
+
+        <!-- Write/Edit Form -->
+        <section id="write-view" class="form-container hidden">
+            <h2 id="form-title">게시글 작성</h2>
+            <form id="post-form">
+                <input type="hidden" id="post-id">
+                <div class="form-group">
+                    <label for="title">제목</label>
+                    <input type="text" id="title" required placeholder="제목을 입력하세요">
+                </div>
+                <div class="form-group" style="display: flex; gap: 20px;">
+                    <div style="flex: 1;">
+                        <label for="author">작성자</label>
+                        <input type="text" id="author" required placeholder="이름">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="password">삭제 비밀번호</label>
+                        <input type="password" id="password" required placeholder="비밀번호 4자리">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="content">내용</label>
+                    <textarea id="content" rows="10" required placeholder="내용을 입력하세요"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="secondary-btn" id="cancel-btn">취소</button>
+                    <button type="submit" class="primary-btn">저장하기</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Post Detail View -->
+        <section id="detail-view" class="view-container hidden">
+            <div id="post-detail"></div>
+            <hr>
+            <div class="comment-section">
+                <h3>댓글</h3>
+                <div id="comment-list"></div>
+                <form id="comment-form">
+                    <div class="comment-input-group">
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input type="text" id="comment-author" placeholder="이름" required style="flex: 1;">
+                            <input type="password" id="comment-password" placeholder="비밀번호" required style="flex: 1;">
+                        </div>
+                        <textarea id="comment-content" placeholder="댓글을 입력하세요" required></textarea>
+                        <button type="submit" class="primary-btn">댓글 등록</button>
+                    </div>
+                </form>
+            </div>
+            <div class="view-actions" style="margin-top: 30px;">
+                <button class="secondary-btn" id="back-to-list">목록으로</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/board.js"></script>
+    <script src="js/board-ui.js"></script>
+</body>
+</html>
