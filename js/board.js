@@ -36,21 +36,13 @@ const Board = {
         return doc.exists ? { id: doc.id, ...doc.data() } : null;
     },
 
-    // Vote on a post
-    async votePost(id, type) {
-        const increment = firebase.firestore.FieldValue.increment(1);
-        const decrement = firebase.firestore.FieldValue.increment(-1);
-        const updateData = {};
-        
-        if (type === 'up') {
-            updateData.likes = increment;
-            updateData.score = increment;
-        } else {
-            updateData.dislikes = increment;
-            updateData.score = decrement;
-        }
-        
-        return await db.collection(this.POSTS).doc(id).update(updateData);
+    // Flexible vote on a post
+    async votePost(id, likesDelta, dislikesDelta, scoreDelta) {
+        return await db.collection(this.POSTS).doc(id).update({
+            likes: firebase.firestore.FieldValue.increment(likesDelta),
+            dislikes: firebase.firestore.FieldValue.increment(dislikesDelta),
+            score: firebase.firestore.FieldValue.increment(scoreDelta)
+        });
     },
 
     // Delete a post with password check
@@ -87,21 +79,13 @@ const Board = {
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     },
 
-    // Vote on a comment
-    async voteComment(postId, commentId, type) {
-        const increment = firebase.firestore.FieldValue.increment(1);
-        const decrement = firebase.firestore.FieldValue.increment(-1);
-        const updateData = {};
-        
-        if (type === 'up') {
-            updateData.likes = increment;
-            updateData.score = increment;
-        } else {
-            updateData.dislikes = increment;
-            updateData.score = decrement;
-        }
-        
-        return await db.collection(this.POSTS).doc(postId).collection(this.COMMENTS).doc(commentId).update(updateData);
+    // Flexible vote on a comment
+    async voteComment(postId, commentId, likesDelta, dislikesDelta, scoreDelta) {
+        return await db.collection(this.POSTS).doc(postId).collection(this.COMMENTS).doc(commentId).update({
+            likes: firebase.firestore.FieldValue.increment(likesDelta),
+            dislikes: firebase.firestore.FieldValue.increment(dislikesDelta),
+            score: firebase.firestore.FieldValue.increment(scoreDelta)
+        });
     },
 
     // Delete a comment with password check

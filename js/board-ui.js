@@ -84,6 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const post = await Board.getPost(id);
+            const votes = JSON.parse(localStorage.getItem('votes_data') || '{}');
+            const myVote = votes[id] || 'none';
+
             detailDiv.innerHTML = `
                 <div class="post-view-header">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -101,8 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 <div class="post-footer" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 20px;">
                     <div class="vote-btns">
-                        <button class="vote-btn up" onclick="vote('post', '${id}', 'up')"><i class="fas fa-thumbs-up"></i> 추천</button>
-                        <button class="vote-btn down" onclick="vote('post', '${id}', 'down')"><i class="fas fa-thumbs-down"></i> 비추천</button>
+                        <button class="vote-btn up ${myVote === 'up' ? 'active' : ''}" onclick="vote('post', '${id}', 'up')">
+                            <i class="fas fa-thumbs-up"></i> 추천 ${post.likes || 0}
+                        </button>
+                        <button class="vote-btn down ${myVote === 'down' ? 'active' : ''}" onclick="vote('post', '${id}', 'down')">
+                            <i class="fas fa-thumbs-down"></i> 비추천 ${post.dislikes || 0}
+                        </button>
                     </div>
                     <div class="delete-area" style="display: flex; gap: 10px;">
                         <input type="password" id="delete-pw-${id}" placeholder="비밀번호" class="password-input">
@@ -116,18 +123,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Voting
+    // Voting logic with localStorage tracking
     window.vote = async (target, id, type, commentId = null) => {
+        const contentId = commentId || id;
+        const storageKey = 'votes_data';
+        let votes = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        const currentVote = votes[contentId] || 'none';
+
+        let lDelta = 0, dDelta = 0, sDelta = 0;
+
+        if (type === 'up') {
+            if (currentVote === 'none') {
+                lDelta = 1; sDelta = 1;
+                votes[contentId] = 'up';
+            } else if (currentVote === 'up') {
+                lDelta = -1; sDelta = -1;
+                votes[contentId] = 'none';
+            } else if (currentVote === 'down') {
+                lDelta = 1; dDelta = -1; sDelta = 2;
+                votes[contentId] = 'up';
+            }
+        } else if (type === 'down') {
+            if (currentVote === 'none') {
+                dDelta = 1; sDelta = -1;
+                votes[contentId] = 'down';
+            } else if (currentVote === 'down') {
+                dDelta = -1; sDelta = 1;
+                votes[contentId] = 'none';
+            } else if (currentVote === 'up') {
+                dDelta = 1; lDelta = -1; sDelta = -2;
+                votes[contentId] = 'down';
+            }
+        }
+
         try {
             if (target === 'post') {
-                await Board.votePost(id, type);
+                await Board.votePost(id, lDelta, dDelta, sDelta);
+                localStorage.setItem(storageKey, JSON.stringify(votes));
                 viewPost(id);
             } else {
-                await Board.voteComment(id, commentId, type);
+                await Board.voteComment(id, commentId, lDelta, dDelta, sDelta);
+                localStorage.setItem(storageKey, JSON.stringify(votes));
                 loadComments(id);
             }
         } catch (error) {
-            alert('투표 실패');
+            alert('투표 실패: ' + error.message);
         }
     };
 
@@ -176,12 +216,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const commentList = document.getElementById('comment-list');
         try {
             const comments = await Board.getComments(postId);
+            const votes = JSON.parse(localStorage.getItem('votes_data') || '{}');
+
             if (comments.length === 0) {
                 commentList.innerHTML = '<p style="color: #999; font-size: 0.9rem; padding: 20px 0;">댓글이 없습니다.</p>';
                 return;
             }
 
-            commentList.innerHTML = comments.map(c => `
+            commentList.innerHTML = comments.map(c => {
+                const myVote = votes[c.id] || 'none';
+                return `
                 <div class="comment-item" style="border-left: 4px solid var(--accent-color);">
                     <div style="display: flex; justify-content: space-between;">
                         <div class="comment-meta">
@@ -196,11 +240,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="comment-text" style="margin: 10px 0;">${c.content}</div>
                     <div class="vote-btns">
-                        <button class="vote-btn" onclick="vote('comment', '${postId}', 'up', '${c.id}')" style="font-size: 0.75rem;"><i class="fas fa-thumbs-up"></i></button>
-                        <button class="vote-btn" onclick="vote('comment', '${postId}', 'down', '${c.id}')" style="font-size: 0.75rem;"><i class="fas fa-thumbs-down"></i></button>
+                        <button class="vote-btn ${myVote === 'up' ? 'active' : ''}" onclick="vote('comment', '${postId}', 'up', '${c.id}')" style="font-size: 0.75rem;">
+                            <i class="fas fa-thumbs-up"></i> ${c.likes || 0}
+                        </button>
+                        <button class="vote-btn ${myVote === 'down' ? 'active' : ''}" onclick="vote('comment', '${postId}', 'down', '${c.id}')" style="font-size: 0.75rem;">
+                            <i class="fas fa-thumbs-down"></i> ${c.dislikes || 0}
+                        </button>
                     </div>
                 </div>
-            `).join('');
+            `;}).join('');
         } catch (error) {
             commentList.innerHTML = '댓글을 불러오지 못했습니다.';
         }
