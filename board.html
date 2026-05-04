@@ -10,43 +10,47 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .score-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: #f0f4f8;
-            padding: 2px 10px;
-            border-radius: 20px;
+        .board-container { border: 1px solid #eee; border-radius: 12px; overflow: hidden; background: white; }
+        .board-header { padding: 30px; background: #fff; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        
+        .sort-menu { display: flex; gap: 10px; margin-bottom: 20px; font-size: 0.9rem; }
+        .sort-btn { background: none; border: 1px solid #ddd; padding: 5px 12px; border-radius: 20px; cursor: pointer; color: #666; transition: all 0.2s; }
+        .sort-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+
+        .post-item { 
+            padding: 20px 30px; 
+            border-bottom: 1px solid #f5f5f5; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            transition: background 0.2s;
+        }
+        .post-item:hover { background-color: #fafafa; }
+        .post-item h4 { font-size: 1.1rem; color: #333; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
+        
+        .recommend-count {
+            min-width: 45px;
+            text-align: center;
+            background: #fdf2f2;
+            color: #e74c3c;
+            padding: 4px 8px;
+            border-radius: 6px;
             font-weight: 700;
-            font-size: 0.9rem;
-            color: var(--primary-color);
-            font-family: 'Inter', sans-serif;
-        }
-        .vote-btns {
-            display: flex;
-            gap: 15px;
-            margin-top: 10px;
-        }
-        .vote-btn {
-            background: none;
-            border: 1px solid #ddd;
-            padding: 5px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
             font-size: 0.85rem;
         }
-        .vote-btn:hover {
-            background: #f0f0f0;
-        }
-        .vote-btn.up:hover, .vote-btn.up.active { color: #27ae60; border-color: #27ae60; background: #eafaf1; }
-        .vote-btn.down:hover, .vote-btn.down.active { color: #e74c3c; border-color: #e74c3c; background: #fdf2f2; }
+        .recommend-count.zero { background: #f0f0f0; color: #999; }
+
+        .post-meta { font-size: 0.85rem; color: #888; }
         
-        .password-input {
-            width: 120px !important;
-            padding: 5px !important;
-            font-size: 0.8rem !important;
+        .vote-btns { display: flex; gap: 10px; margin-top: 15px; }
+        .vote-btn { 
+            background: #fff; border: 1px solid #eee; padding: 8px 16px; border-radius: 8px; cursor: pointer; 
+            display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 0.9rem;
         }
+        .vote-btn.active.up { background: #eafaf1; color: #27ae60; border-color: #27ae60; }
+        .vote-btn.active.down { background: #fdf2f2; color: #e74c3c; border-color: #e74c3c; }
+        
+        .password-input { border: 1px solid #eee; border-radius: 6px; background: #fafafa; }
     </style>
 </head>
 <body>
@@ -63,13 +67,22 @@
 
     <main class="page-section">
         <!-- Board List -->
-        <section id="board-list-view" class="board-container">
-            <div class="board-header">
-                <h2>자유게시판</h2>
-                <button id="write-btn" class="primary-btn">글쓰기</button>
+        <section id="board-list-view">
+            <div class="board-header-wrapper" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-size: 1.8rem; color: var(--primary-color);">자유게시판</h2>
+                <button id="write-btn" class="primary-btn">+ 새 글 작성</button>
             </div>
-            <div id="post-list" class="post-list">
-                <div class="loading">게시글을 불러오는 중...</div>
+
+            <div class="sort-menu">
+                <button class="sort-btn active" data-sort="latest">최신순</button>
+                <button class="sort-btn" data-sort="oldest">오래된 순</button>
+                <button class="sort-btn" data-sort="popular">추천순</button>
+            </div>
+
+            <div class="board-container">
+                <div id="post-list" class="post-list">
+                    <div class="loading">게시글을 불러오는 중...</div>
+                </div>
             </div>
         </section>
 

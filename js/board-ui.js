@@ -1,7 +1,3 @@
-/**
- * Board UI Logic for board.html
- */
-
 document.addEventListener('DOMContentLoaded', () => {
     const views = {
         list: document.getElementById('board-list-view'),
@@ -12,13 +8,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const postList = document.getElementById('post-list');
     const postForm = document.getElementById('post-form');
     const commentForm = document.getElementById('comment-form');
+    const sortBtns = document.querySelectorAll('.sort-btn');
+    
     let currentPostId = null;
+    let currentSort = 'latest';
 
     function showView(viewKey) {
         Object.values(views).forEach(v => v.classList.add('hidden'));
         views[viewKey].classList.remove('hidden');
-        if (viewKey === 'list') loadPosts();
+        if (viewKey === 'list') loadPosts(currentSort);
     }
+
+    // Sort Listeners
+    sortBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            sortBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentSort = btn.getAttribute('data-sort');
+            loadPosts(currentSort);
+        });
+    });
 
     // Event Listeners
     document.getElementById('write-btn').addEventListener('click', () => showView('write'));
@@ -44,10 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Load Posts
-    async function loadPosts() {
+    async function loadPosts(sortBy) {
         postList.innerHTML = '<div class="loading">불러오는 중...</div>';
         try {
-            const posts = await Board.getPosts();
+            const posts = await Board.getPosts(sortBy);
             if (posts.length === 0) {
                 postList.innerHTML = '<div class="empty">게시글이 없습니다.</div>';
                 return;
@@ -56,18 +65,15 @@ document.addEventListener('DOMContentLoaded', () => {
             postList.innerHTML = posts.map(post => `
                 <div class="post-item" onclick="viewPost('${post.id}')">
                     <div class="post-info">
-                        <h4>
-                            <span class="score-badge">
-                                <i class="fas fa-star"></i> ${post.score || 0}
-                            </span>
-                            ${post.title}
-                        </h4>
+                        <h4>${post.title}</h4>
                         <div class="post-meta">
                             <span>${post.author}</span> | 
                             <span>${post.createdAt ? post.createdAt.toDate().toLocaleDateString() : '방금 전'}</span>
                         </div>
                     </div>
-                    <i class="fas fa-chevron-right"></i>
+                    <div class="recommend-count ${post.likes > 0 ? '' : 'zero'}">
+                        추천 ${post.likes || 0}
+                    </div>
                 </div>
             `).join('');
         } catch (error) {
@@ -88,32 +94,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const myVote = votes[id] || 'none';
 
             detailDiv.innerHTML = `
-                <div class="post-view-header">
+                <div class="post-view-header" style="margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <h2>${post.title}</h2>
-                        <div class="score-badge" style="font-size: 1.2rem; padding: 5px 15px;">
-                             점수: ${post.score || 0}
+                        <h2 style="font-size: 1.6rem; color: #333;">${post.title}</h2>
+                        <div class="recommend-count ${post.likes > 0 ? '' : 'zero'}" style="font-size: 1rem; padding: 6px 12px;">
+                             추천 ${post.likes || 0}
                         </div>
                     </div>
-                    <div class="post-meta">
-                        <span>작성자: ${post.author}</span> | 
+                    <div class="post-meta" style="margin-top: 10px;">
+                        <span>작성자: <strong>${post.author}</strong></span> | 
                         <span>작성일: ${post.createdAt ? post.createdAt.toDate().toLocaleString() : ''}</span>
                     </div>
                 </div>
-                <div class="post-content" style="padding: 30px 0; min-height: 200px; white-space: pre-wrap; font-size: 1.1rem;">${post.content}</div>
+                <div class="post-content" style="padding: 20px 0 40px 0; min-height: 200px; white-space: pre-wrap; font-size: 1.05rem; color: #444; border-bottom: 1px solid #f9f9f9;">${post.content}</div>
                 
-                <div class="post-footer" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 20px;">
+                <div class="post-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
                     <div class="vote-btns">
                         <button class="vote-btn up ${myVote === 'up' ? 'active' : ''}" onclick="vote('post', '${id}', 'up')">
-                            <i class="fas fa-thumbs-up"></i> 추천 ${post.likes || 0}
+                            <i class="fas fa-thumbs-up"></i> 추천
                         </button>
                         <button class="vote-btn down ${myVote === 'down' ? 'active' : ''}" onclick="vote('post', '${id}', 'down')">
-                            <i class="fas fa-thumbs-down"></i> 비추천 ${post.dislikes || 0}
+                            <i class="fas fa-thumbs-down"></i> 비추천
                         </button>
                     </div>
-                    <div class="delete-area" style="display: flex; gap: 10px;">
-                        <input type="password" id="delete-pw-${id}" placeholder="비밀번호" class="password-input">
-                        <button class="secondary-btn" style="color: red; padding: 5px 15px;" onclick="deleteContent('post', '${id}')">삭제</button>
+                    <div class="delete-area" style="display: flex; gap: 10px; align-items: center;">
+                        <input type="password" id="delete-pw-${id}" placeholder="삭제 비밀번호" class="password-input" style="padding: 8px; font-size: 0.9rem;">
+                        <button class="secondary-btn" style="color: #999; border: 1px solid #ddd; padding: 7px 15px; background: white;" onclick="deleteContent('post', '${id}')">삭제</button>
                     </div>
                 </div>
             `;
@@ -226,25 +232,25 @@ document.addEventListener('DOMContentLoaded', () => {
             commentList.innerHTML = comments.map(c => {
                 const myVote = votes[c.id] || 'none';
                 return `
-                <div class="comment-item" style="border-left: 4px solid var(--accent-color);">
+                <div class="comment-item" style="border-bottom: 1px solid #f0f0f0; padding: 15px 0;">
                     <div style="display: flex; justify-content: space-between;">
                         <div class="comment-meta">
                             <strong>${c.author}</strong> 
-                            <span class="score-badge" style="font-size: 0.75rem; margin-left: 10px;">점수: ${c.score || 0}</span>
+                            <span class="recommend-count ${c.likes > 0 ? '' : 'zero'}" style="font-size: 0.7rem; margin-left: 10px;">추천 ${c.likes || 0}</span>
                             <span style="font-weight: 400; color: #999; font-size: 0.8rem; margin-left: 10px;">${c.createdAt ? c.createdAt.toDate().toLocaleString() : ''}</span>
                         </div>
                         <div class="delete-area">
-                            <input type="password" id="delete-pw-${c.id}" placeholder="PW" class="password-input" style="width: 60px !important;">
-                            <button onclick="deleteContent('comment', '${postId}', '${c.id}')" style="background: none; border: none; color: #ff4d4d; font-size: 0.8rem; cursor: pointer;">삭제</button>
+                            <input type="password" id="delete-pw-${c.id}" placeholder="PW" class="password-input" style="width: 50px !important; padding: 3px;">
+                            <button onclick="deleteContent('comment', '${postId}', '${c.id}')" style="background: none; border: none; color: #ccc; font-size: 0.75rem; cursor: pointer;">삭제</button>
                         </div>
                     </div>
-                    <div class="comment-text" style="margin: 10px 0;">${c.content}</div>
-                    <div class="vote-btns">
-                        <button class="vote-btn ${myVote === 'up' ? 'active' : ''}" onclick="vote('comment', '${postId}', 'up', '${c.id}')" style="font-size: 0.75rem;">
-                            <i class="fas fa-thumbs-up"></i> ${c.likes || 0}
+                    <div class="comment-text" style="margin: 8px 0; color: #555;">${c.content}</div>
+                    <div class="vote-btns" style="margin-top: 5px;">
+                        <button class="vote-btn ${myVote === 'up' ? 'active up' : ''}" onclick="vote('comment', '${postId}', 'up', '${c.id}')" style="font-size: 0.7rem; padding: 4px 8px;">
+                            <i class="fas fa-thumbs-up"></i>
                         </button>
-                        <button class="vote-btn ${myVote === 'down' ? 'active' : ''}" onclick="vote('comment', '${postId}', 'down', '${c.id}')" style="font-size: 0.75rem;">
-                            <i class="fas fa-thumbs-down"></i> ${c.dislikes || 0}
+                        <button class="vote-btn ${myVote === 'down' ? 'active down' : ''}" onclick="vote('comment', '${postId}', 'down', '${c.id}')" style="font-size: 0.7rem; padding: 4px 8px;">
+                            <i class="fas fa-thumbs-down"></i>
                         </button>
                     </div>
                 </div>
@@ -255,5 +261,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Initialize
-    loadPosts();
+    loadPosts(currentSort);
 });

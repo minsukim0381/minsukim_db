@@ -22,11 +22,19 @@ const Board = {
         });
     },
 
-    // Get all posts
-    async getPosts() {
-        const snapshot = await db.collection(this.POSTS)
-            .orderBy('createdAt', 'desc')
-            .get();
+    // Get all posts with sorting
+    async getPosts(sortBy = 'latest') {
+        let query = db.collection(this.POSTS);
+        
+        if (sortBy === 'latest') {
+            query = query.orderBy('createdAt', 'desc');
+        } else if (sortBy === 'oldest') {
+            query = query.orderBy('createdAt', 'asc');
+        } else if (sortBy === 'popular') {
+            query = query.orderBy('likes', 'desc');
+        }
+        
+        const snapshot = await query.get();
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     },
 
