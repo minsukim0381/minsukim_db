@@ -71,8 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span>${post.createdAt ? post.createdAt.toDate().toLocaleDateString() : '방금 전'}</span>
                         </div>
                     </div>
-                    <div class="recommend-count ${post.likes > 0 ? '' : 'zero'}">
-                        추천 ${post.likes || 0}
+                    <div class="recommend-count ${post.score > 0 ? '' : post.score < 0 ? 'negative' : 'zero'}">
+                        추천 ${post.score || 0}
                     </div>
                 </div>
             `).join('');
@@ -97,8 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="post-view-header" style="margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <h2 style="font-size: 1.6rem; color: #333;">${post.title}</h2>
-                        <div class="recommend-count ${post.likes > 0 ? '' : 'zero'}" style="font-size: 1rem; padding: 6px 12px;">
-                             추천 ${post.likes || 0}
+                        <div class="recommend-count ${post.score > 0 ? '' : post.score < 0 ? 'negative' : 'zero'}" style="font-size: 1rem; padding: 6px 12px;">
+                             추천 ${post.score || 0}
                         </div>
                     </div>
                     <div class="post-meta" style="margin-top: 10px;">
@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="display: flex; justify-content: space-between;">
                         <div class="comment-meta">
                             <strong>${c.author}</strong> 
-                            <span class="recommend-count ${c.likes > 0 ? '' : 'zero'}" style="font-size: 0.7rem; margin-left: 10px;">추천 ${c.likes || 0}</span>
+                            <span class="recommend-count ${c.score > 0 ? '' : c.score < 0 ? 'negative' : 'zero'}" style="font-size: 0.7rem; margin-left: 10px;">추천 ${c.score || 0}</span>
                             <span style="font-weight: 400; color: #999; font-size: 0.8rem; margin-left: 10px;">${c.createdAt ? c.createdAt.toDate().toLocaleString() : ''}</span>
                         </div>
                         <div class="delete-area">

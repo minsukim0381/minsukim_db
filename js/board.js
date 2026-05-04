@@ -31,7 +31,7 @@ const Board = {
         } else if (sortBy === 'oldest') {
             query = query.orderBy('createdAt', 'asc');
         } else if (sortBy === 'popular') {
-            query = query.orderBy('likes', 'desc');
+            query = query.orderBy('score', 'desc');
         }
         
         const snapshot = await query.get();
